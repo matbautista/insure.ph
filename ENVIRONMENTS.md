@@ -103,16 +103,23 @@ production are real, you still need to:
 1. Pick a hosting provider (e.g. Vercel, AWS, Railway, Fly.io) and create one
    project/app per environment (or one project with per-environment env
    scoping, depending on the provider).
-2. Pick a database per environment and put its connection string only in
-   that environment's secret store.
-3. Fill in the real `AUTH_SECRET` per environment (`openssl rand -base64 32`
+2. Database: **Neon** (chosen — see `src/lib/db/`). Create one Neon project
+   with a branch per environment (demo/development/staging/production),
+   mirroring the git branches, and put each branch's connection string in
+   that environment's `DATABASE_URL` secret. Run `npm run db:push` once
+   against each to create the `inquiries` table.
+3. Email: **Resend** (chosen — see `src/lib/email.ts`). Verify a sending
+   domain in Resend, then set `RESEND_API_KEY` and `INQUIRY_FROM_EMAIL` per
+   environment. Without these, `/api/inquiries` still saves to the database
+   but won't send the notification email to info@insureph.org.
+4. Fill in the real `AUTH_SECRET` per environment (`openssl rand -base64 32`
    — a different value per environment, never reused).
-4. Replace the placeholder URLs in `.env.demo` / `.env.staging` /
+5. Replace the placeholder URLs in `.env.demo` / `.env.staging` /
    `.env.production` with real domains once they exist.
-5. Wire the `deploy` steps in `.github/workflows/cd.yml` and
+6. Wire the `deploy` steps in `.github/workflows/cd.yml` and
    `promote-production.yml` to that provider's CLI/action, and add the
    required secrets in GitHub's per-environment "Environments" settings
    (Settings → Environments → demo/development/staging/production).
-6. Add required reviewers to the `production` GitHub Environment (Settings →
+7. Add required reviewers to the `production` GitHub Environment (Settings →
    Environments → production → Required reviewers) — without this, the
    promotion gate described above is not actually enforced.
