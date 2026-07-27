@@ -42,17 +42,20 @@ jobs:
 
       - run: npm ci
 
-      - name: Build for production
-        run: npm run build:production
-        # env:
-        #   DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        #   AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      - name: Build and deploy to Netlify (production)
+        # See cd.yml for why this is `--build` (runs netlify.toml's build
+        # command + the Next.js plugin transform) and why no DATABASE_URL /
+        # RESEND_API_KEY / AUTH_SECRET is passed here: those are runtime
+        # secrets for Netlify Functions, configured on the production site
+        # itself, not GitHub Actions secrets.
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          APP_ENV: production
+        run: npx netlify-cli@27 deploy --build --prod
 
-      - name: Deploy
-        run: |
-          echo "TODO: no hosting provider has been chosen yet (see ENVIRONMENTS.md)."
-          echo "Replace this step with the provider's deploy action/CLI."
-          echo "Promoting commit ${{ inputs.sha }} to production."
+      - name: Promoting commit
+        run: echo "Promoted commit ${{ inputs.sha }} to production."
 
       - name: Tag the release for audit trail
         env:
