@@ -1,65 +1,124 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Hero } from "@/components/Hero";
+import { ServiceCard } from "@/components/ServiceCard";
+import { CTASection } from "@/components/CTASection";
+import { services } from "@/lib/nav";
+
+const differentiators = [
+  {
+    title: "Compare Multiple Insurers, One Conversation",
+    body: "We're an independent agency, not a single-brand sales team — so the plan we recommend is the one that fits you, not a quota.",
+  },
+  {
+    title: "Local, Pasig-Based Team",
+    body: "A real office you can visit, in Rosario, Pasig City — not just a hotline.",
+  },
+  {
+    title: "Dedicated Claims & Assistance Support",
+    body: "We help you through the claims process with your insurer, from paperwork to follow-up.",
+  },
+  {
+    title: "Advice Matched to Your Life Stage",
+    body: "Starting a family, buying a car, insuring OFW dependents — we recommend coverage for your situation, not a one-size product.",
+  },
+];
+
+const testimonials = [
+  {
+    quote:
+      "Insure PH helped my family get HMO coverage that actually fit our budget, and walked us through every step of the enrollment.",
+    name: "Client testimonial placeholder — replace with a real name/photo once collected",
+  },
+  {
+    quote:
+      "When I got into a minor accident, their claims team handled the back-and-forth with my insurer so I didn't have to.",
+    name: "Client testimonial placeholder — replace with a real name/photo once collected",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex flex-1 flex-col">
+      <Hero
+        headline="Protect What Matters Most — Trusted Insurance for Every Filipino Family"
+        subheadline="From your car and your home to your health and your family's future, Insure PH connects you to the right coverage — with honest advice, not hard selling."
+        primaryCta={{ label: "Get a Free Quote", href: "/services" }}
+        secondaryCta={{ label: "Talk to an Advisor", href: "/about" }}
+      />
+
+      <section className="border-y border-teal-100 bg-gradient-to-r from-blue-50 to-teal-50 py-4 text-center text-sm font-medium text-zinc-700 dark:border-teal-900/40 dark:from-blue-950/40 dark:to-teal-950/30 dark:text-zinc-300">
+        Licensed insurance agency based in Pasig City, working with multiple trusted insurers.
+      </section>
+
+      <section className="mx-auto w-full max-w-6xl px-6 py-16">
+        <h2 className="text-center text-2xl font-bold text-zinc-900 sm:text-3xl dark:text-zinc-50">
+          Our Services
+        </h2>
+        <p className="mx-auto mt-2 max-w-2xl text-center text-zinc-600 dark:text-zinc-400">
+          Whatever you need to protect, we likely have a plan for it.
+        </p>
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {services.map((service) => (
+            <ServiceCard key={service.slug} service={service} />
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      <section className="bg-gradient-to-b from-blue-50/70 to-teal-50/40 py-16 dark:from-blue-950/40 dark:to-teal-950/20">
+        <div className="mx-auto max-w-6xl px-6">
+          <h2 className="text-center text-2xl font-bold text-zinc-900 sm:text-3xl dark:text-zinc-50">
+            Why Insure PH
+          </h2>
+          <div className="mt-8 grid gap-6 sm:grid-cols-2">
+            {differentiators.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-xl border border-zinc-200 bg-white p-6 transition-colors hover:border-teal-300 dark:border-zinc-800 dark:bg-black dark:hover:border-teal-700"
+              >
+                <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</h3>
+                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{item.body}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </main>
+      </section>
+
+      <section className="border-y border-zinc-200 bg-white py-10 dark:border-zinc-800 dark:bg-black">
+        <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 px-6 text-center sm:flex-row sm:justify-between sm:text-left">
+          <div>
+            <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">Need to File a Claim?</h2>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+              Our Claims and Assistance Center walks you through every step, with your insurer, on your side.
+            </p>
+          </div>
+          <Link
+            href="/claims"
+            className="shrink-0 rounded-full bg-gradient-to-r from-blue-700 to-teal-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:shadow-md hover:from-blue-800 hover:to-teal-700"
+          >
+            Get Claims Help
+          </Link>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-6xl px-6 py-16">
+        <h2 className="text-center text-2xl font-bold text-zinc-900 sm:text-3xl dark:text-zinc-50">
+          What Our Clients Say
+        </h2>
+        <div className="mt-8 grid gap-6 sm:grid-cols-2">
+          {testimonials.map((t, i) => (
+            <blockquote key={i} className="rounded-xl border border-zinc-200 p-6 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">
+              <p className="italic">&ldquo;{t.quote}&rdquo;</p>
+              <footer className="mt-3 text-sm font-medium text-zinc-500">{t.name}</footer>
+            </blockquote>
+          ))}
+        </div>
+      </section>
+
+      <CTASection
+        headline="Not Sure Where to Start?"
+        subheadline="Let's find the right coverage together."
+        cta={{ label: "Talk to an Advisor", href: "/about" }}
+      />
     </div>
   );
 }

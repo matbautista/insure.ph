@@ -8,8 +8,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-ubuntu-sans);
+  --font-mono: var(--font-ubuntu-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +22,79 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.snowflake,
+.heart-particle,
+.confetti-particle,
+.leaf-particle {
+  animation-name: falling-drift;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.snowflake {
+  color: #ffffff;
+  text-shadow: 0 0 3px rgba(15, 23, 42, 0.4);
+}
+
+.heart-particle {
+  color: #f43f5e;
+  text-shadow:
+    0 0 3px rgba(255, 255, 255, 0.6),
+    0 0 2px rgba(136, 19, 55, 0.35);
+}
+
+.confetti-particle {
+  text-shadow:
+    0 0 3px rgba(255, 255, 255, 0.6),
+    0 0 2px rgba(15, 23, 42, 0.35);
+}
+
+/* Rain falls fast and straight, unlike the gentle drift-and-sway used for
+   snow/hearts/confetti/leaves — it gets its own, quicker, vertical-only
+   keyframe rather than sharing falling-drift. */
+.raindrop {
+  animation-name: rain-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes falling-drift {
+  0% {
+    transform: translate(0, -10vh);
+  }
+  25% {
+    transform: translate(10px, 25vh);
+  }
+  50% {
+    transform: translate(-10px, 55vh);
+  }
+  75% {
+    transform: translate(10px, 85vh);
+  }
+  100% {
+    transform: translate(0, 110vh);
+  }
+}
+
+@keyframes rain-fall {
+  0% {
+    transform: translateY(-10vh);
+  }
+  100% {
+    transform: translateY(110vh);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snowflake,
+  .heart-particle,
+  .confetti-particle,
+  .leaf-particle,
+  .raindrop {
+    animation: none;
+    display: none;
+  }
 }

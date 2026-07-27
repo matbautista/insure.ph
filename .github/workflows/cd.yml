@@ -1,8 +1,8 @@
-name: CD
+name: CD (demo / development / staging)
 
-# Branch -> environment mapping. Adjust to match the team's actual git
-# workflow (see ENVIRONMENTS.md). `workflow_dispatch` lets any environment be
-# deployed on demand, e.g. to reset the demo environment.
+# Branch -> environment mapping for the three environments that deploy
+# automatically. Production is deliberately NOT here — see
+# promote-production.yml and ENVIRONMENTS.md.
 on:
   push:
     branches:
@@ -12,10 +12,10 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Environment to deploy"
+        description: "Environment to (re-)deploy on demand, e.g. to reset demo"
         required: true
         type: choice
-        options: [demo, development, staging, production]
+        options: [demo, development, staging]
 
 jobs:
   resolve-environment:
@@ -42,8 +42,7 @@ jobs:
     needs: resolve-environment
     runs-on: ubuntu-latest
     # Maps to a GitHub "Environment" (Settings -> Environments) so secrets are
-    # scoped per environment and, for production, a required reviewer can be
-    # configured without changing this workflow.
+    # scoped per environment.
     environment: ${{ needs.resolve-environment.outputs.environment }}
     env:
       APP_ENV: ${{ needs.resolve-environment.outputs.environment }}
@@ -72,3 +71,10 @@ jobs:
           echo "  - Vercel:  amondnet/vercel-action or \`vercel deploy --prebuilt\`"
           echo "  - AWS:     aws-actions/configure-aws-credentials + your deploy script"
           echo "Target environment: ${{ env.APP_ENV }}"
+
+      - name: How to promote this to production
+        if: env.APP_ENV == 'staging'
+        run: |
+          echo "If this staging deploy checks out, promote it with:"
+          echo "  gh workflow run promote-production.yml -f sha=${{ github.sha }}"
+          echo "(requires the commit to be on main, and approval from a required reviewer on the production environment)"
