@@ -1,0 +1,36 @@
+{
+  "name": "insure-ph",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "dotenv -e .env.development.local -e .env.development -- next dev",
+    "dev:demo": "dotenv -e .env.demo.local -e .env.demo -- next dev",
+    "dev:staging": "dotenv -e .env.staging.local -e .env.staging -- next dev",
+    "build": "npm run build:development",
+    "build:development": "dotenv -e .env.development.local -e .env.development -- next build",
+    "build:demo": "dotenv -e .env.demo.local -e .env.demo -- next build",
+    "build:staging": "dotenv -e .env.staging.local -e .env.staging -- next build",
+    "build:production": "dotenv -e .env.production.local -e .env.production -- next build",
+    "start": "next start",
+    "start:demo": "dotenv -e .env.demo.local -e .env.demo -- next start",
+    "start:staging": "dotenv -e .env.staging.local -e .env.staging -- next start",
+    "start:production": "dotenv -e .env.production.local -e .env.production -- next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "next": "16.2.12",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv-cli": "^11.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.12",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

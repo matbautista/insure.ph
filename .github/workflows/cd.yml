@@ -1,0 +1,74 @@
+name: CD
+
+# Branch -> environment mapping. Adjust to match the team's actual git
+# workflow (see ENVIRONMENTS.md). `workflow_dispatch` lets any environment be
+# deployed on demand, e.g. to reset the demo environment.
+on:
+  push:
+    branches:
+      - develop # -> development
+      - demo # -> demo
+      - main # -> staging
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy"
+        required: true
+        type: choice
+        options: [demo, development, staging, production]
+
+jobs:
+  resolve-environment:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.resolve.outputs.environment }}
+    steps:
+      - id: resolve
+        run: |
+          if [ -n "${{ inputs.environment }}" ]; then
+            echo "environment=${{ inputs.environment }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.ref_name }}" = "develop" ]; then
+            echo "environment=development" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.ref_name }}" = "demo" ]; then
+            echo "environment=demo" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.ref_name }}" = "main" ]; then
+            echo "environment=staging" >> "$GITHUB_OUTPUT"
+          else
+            echo "No environment mapped for ref ${{ github.ref_name }}" >&2
+            exit 1
+          fi
+
+  deploy:
+    needs: resolve-environment
+    runs-on: ubuntu-latest
+    # Maps to a GitHub "Environment" (Settings -> Environments) so secrets are
+    # scoped per environment and, for production, a required reviewer can be
+    # configured without changing this workflow.
+    environment: ${{ needs.resolve-environment.outputs.environment }}
+    env:
+      APP_ENV: ${{ needs.resolve-environment.outputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Build for ${{ env.APP_ENV }}
+        run: npm run "build:${{ env.APP_ENV }}"
+        # Secrets (DATABASE_URL, AUTH_SECRET, ...) come from this job's
+        # GitHub Environment secrets, injected here as needed, e.g.:
+        # env:
+        #   DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        #   AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+
+      - name: Deploy
+        run: |
+          echo "TODO: no hosting provider has been chosen yet (see ENVIRONMENTS.md)."
+          echo "Replace this step with the provider's deploy action/CLI, e.g.:"
+          echo "  - Vercel:  amondnet/vercel-action or \`vercel deploy --prebuilt\`"
+          echo "  - AWS:     aws-actions/configure-aws-credentials + your deploy script"
+          echo "Target environment: ${{ env.APP_ENV }}"
