@@ -42,17 +42,22 @@ jobs:
 
       - run: npm ci
 
-      - name: Build and deploy to Netlify (production)
-        # See cd.yml for why this is `--build` (runs netlify.toml's build
-        # command + the Next.js plugin transform) and why no DATABASE_URL /
-        # RESEND_API_KEY / AUTH_SECRET is passed here: those are runtime
-        # secrets for Netlify Functions, configured on the production site
-        # itself, not GitHub Actions secrets.
+      - name: Build and deploy to Vercel (production)
+        # See cd.yml for why no DATABASE_URL / RESEND_API_KEY / AUTH_SECRET
+        # is passed here: those are runtime secrets for Vercel Functions,
+        # configured on the production Vercel project itself, not GitHub
+        # Actions secrets. APP_ENV is also a Vercel project variable (pulled
+        # below), set here only so vercel.json's buildCommand has it if
+        # `vercel pull` hasn't been run yet in this job.
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           APP_ENV: production
-        run: npx netlify-cli@27 deploy --build --prod
+        run: |
+          npx vercel@58 pull --yes --environment=production --token="$VERCEL_TOKEN"
+          npx vercel@58 build --prod --token="$VERCEL_TOKEN"
+          npx vercel@58 deploy --prebuilt --prod --token="$VERCEL_TOKEN"
 
       - name: Promoting commit
         run: echo "Promoted commit ${{ inputs.sha }} to production."
