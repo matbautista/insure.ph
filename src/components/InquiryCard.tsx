@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { STATUS_OPTIONS } from "@/lib/inquiry-status";
+import { calculateAge } from "@/lib/age";
 
 export function InquiryCard({
   id,
@@ -60,14 +61,20 @@ export function InquiryCard({
 
       <table className="mt-3 w-full text-sm">
         <tbody>
-          {Object.entries(data).map(([key, value]) => (
-            <tr key={key} className="border-t border-zinc-100 dark:border-zinc-800">
-              <td className="py-1.5 pr-4 align-top font-medium whitespace-nowrap text-zinc-600 dark:text-zinc-400">
-                {key}
-              </td>
-              <td className="py-1.5 text-zinc-900 dark:text-zinc-50">{String(value)}</td>
-            </tr>
-          ))}
+          {Object.entries(data).map(([key, value]) => {
+            const age = key === "birthdate" && typeof value === "string" ? calculateAge(value) : null;
+            return (
+              <tr key={key} className="border-t border-zinc-100 dark:border-zinc-800">
+                <td className="py-1.5 pr-4 align-top font-medium whitespace-nowrap text-zinc-600 dark:text-zinc-400">
+                  {key}
+                </td>
+                <td className="py-1.5 text-zinc-900 dark:text-zinc-50">
+                  {String(value)}
+                  {age !== null && <span className="text-zinc-500 dark:text-zinc-400"> (Age {age})</span>}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 

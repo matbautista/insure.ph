@@ -110,7 +110,7 @@ export const lifeInsuranceForm: FormDefinition = {
     { name: "name", label: "Full Name", type: "text", required: true },
     { name: "phone", label: "Contact Number", type: "tel", required: true },
     { name: "email", label: "Email Address", type: "email", required: true },
-    { name: "age", label: "Age", type: "text", required: true },
+    { name: "birthdate", label: "Date of Birth", type: "date", required: true },
     {
       name: "genderAtBirth",
       label: "Gender at Birth",
