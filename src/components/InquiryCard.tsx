@@ -27,6 +27,7 @@ export function InquiryCard({
   const [assignee, setAssignee] = useState(initialAssignee);
   const [remarks, setRemarks] = useState(initialRemarks);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const dirty = status !== initialStatus || assignee !== initialAssignee || remarks !== initialRemarks;
@@ -47,6 +48,23 @@ export function InquiryCard({
       router.refresh();
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!window.confirm("Delete this inquiry? This cannot be undone.")) return;
+
+    setDeleting(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/inquiries/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        setError("Failed to delete. Try again.");
+        return;
+      }
+      router.refresh();
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -118,10 +136,18 @@ export function InquiryCard({
           <button
             type="button"
             onClick={handleSave}
-            disabled={!dirty || saving}
+            disabled={!dirty || saving || deleting}
             className="rounded-full bg-gradient-to-r from-blue-700 to-teal-600 px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save"}
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={saving || deleting}
+            className="rounded-full border border-red-300 px-4 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
+          >
+            {deleting ? "Deleting…" : "Delete"}
           </button>
           {error && <span className="text-sm text-red-600">{error}</span>}
         </div>

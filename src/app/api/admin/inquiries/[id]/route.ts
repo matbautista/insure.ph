@@ -5,14 +5,18 @@ import { inquiries } from "@/lib/db/schema";
 import { ADMIN_SESSION_COOKIE, verifyAdminSessionToken } from "@/lib/admin-auth";
 import { STATUS_OPTIONS } from "@/lib/inquiry-status";
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function requireAdmin(request: Request) {
   const token = request.headers
     .get("cookie")
     ?.split("; ")
     .find((c) => c.startsWith(`${ADMIN_SESSION_COOKIE}=`))
     ?.slice(ADMIN_SESSION_COOKIE.length + 1);
 
-  if (!token || !(await verifyAdminSessionToken(token))) {
+  return Boolean(token) && (await verifyAdminSessionToken(token!));
+}
+
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await requireAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -53,6 +57,26 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   await db.update(inquiries).set(update).where(eq(inquiries.id, inquiryId));
+
+  return NextResponse.json({ status: "ok" });
+}
+
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await requireAdmin(request))) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const inquiryId = Number(id);
+  if (!Number.isInteger(inquiryId)) {
+    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  }
+
+  if (!db) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  }
+
+  await db.delete(inquiries).where(eq(inquiries.id, inquiryId));
 
   return NextResponse.json({ status: "ok" });
 }
