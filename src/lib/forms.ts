@@ -173,6 +173,19 @@ export const memorialPlanForm: FormDefinition = {
   ],
 };
 
+// Display/grouping order for the admin inquiries dashboard (not related to
+// the public-facing form pages) — claims first since those are time-
+// sensitive, general inquiry last since it's the catch-all.
+export const adminFormTypeGroups: { formType: string; label: string }[] = [
+  { formType: "claims-assistance", label: "Claims Assistance" },
+  { formType: "auto-insurance-quote", label: "Motor Insurance" },
+  { formType: "life-insurance-inquiry", label: "Life Insurance" },
+  { formType: "hmo-insurance-inquiry", label: "HMO Insurance" },
+  { formType: "property-fire-insurance-quote", label: "Property & Fire Insurance" },
+  { formType: "memorial-plan-inquiry", label: "Memorial Plans" },
+  { formType: "general-inquiry", label: "General Inquiry" },
+];
+
 export const claimsAssistanceForm: FormDefinition = {
   formType: "claims-assistance",
   title: "Submit a Claims Assistance Request",
