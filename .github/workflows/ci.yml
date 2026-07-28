@@ -21,5 +21,18 @@ jobs:
 
       - run: npm run lint
 
+      # All four env configs are built here for validation only - demo,
+      # development, and staging never deploy anywhere (local-only, run via
+      # npm run dev / dev:demo / dev:staging / build+start:<env>). Only
+      # production deploys, via promote-production.yml. See ENVIRONMENTS.md.
+      - name: Build (demo config, for validation only)
+        run: npm run build:demo
+
       - name: Build (development config, for validation only)
         run: npm run build:development
+
+      - name: Build (staging config, for validation only)
+        run: npm run build:staging
+
+      - name: Build (production config, for validation only)
+        run: npm run build:production

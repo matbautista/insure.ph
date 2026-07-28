@@ -1,8 +1,10 @@
 name: Promote to Production
 
-# Manual-only, deliberate promotion of a specific commit that has already
-# been deployed to staging. This is the staging -> production protocol:
-# nothing is ever auto-deployed to production by a push.
+# Manual-only, deliberate promotion of a specific commit. demo, development,
+# and staging are local-only (see ENVIRONMENTS.md) - there is no hosted
+# staging deployment to check, so verification before promoting is a manual
+# local step (npm run build:staging / dev:staging), not a CI gate. Nothing
+# is ever auto-deployed to production by a push.
 #
 # One-time setup this workflow depends on (cannot be done from YAML):
 #   Settings -> Environments -> production -> Required reviewers
@@ -12,7 +14,7 @@ on:
   workflow_dispatch:
     inputs:
       sha:
-        description: "Commit SHA already verified in staging (see the staging deploy's run, or `git log main`)"
+        description: "Commit SHA verified locally (staging build/run), or `git log main`"
         required: true
 
 permissions:
@@ -43,17 +45,15 @@ jobs:
       - run: npm ci
 
       - name: Build and deploy to Vercel (production)
-        # See cd.yml for why no DATABASE_URL / RESEND_API_KEY / AUTH_SECRET
-        # is passed here: those are runtime secrets for Vercel Functions,
-        # configured on the production Vercel project itself, not GitHub
-        # Actions secrets. APP_ENV is also a Vercel project variable (pulled
-        # below), set here only so vercel.json's buildCommand has it if
-        # `vercel pull` hasn't been run yet in this job.
+        # No DATABASE_URL / RESEND_API_KEY / AUTH_SECRET here: those are
+        # runtime secrets for Vercel Functions, configured on the production
+        # Vercel project itself, not GitHub Actions secrets. vercel.json's
+        # buildCommand is hardcoded to `npm run build:production` (the only
+        # environment that ever deploys), so no APP_ENV plumbing is needed.
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          APP_ENV: production
         run: |
           npx vercel@58 pull --yes --environment=production --token="$VERCEL_TOKEN"
           npx vercel@58 build --prod --token="$VERCEL_TOKEN"
