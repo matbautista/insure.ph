@@ -110,7 +110,21 @@ export const lifeInsuranceForm: FormDefinition = {
     { name: "name", label: "Full Name", type: "text", required: true },
     { name: "phone", label: "Contact Number", type: "tel", required: true },
     { name: "email", label: "Email Address", type: "email", required: true },
-    { name: "age", label: "Age", type: "text", required: true },
+    { name: "birthdate", label: "Date of Birth", type: "date", required: true },
+    {
+      name: "genderAtBirth",
+      label: "Gender at Birth",
+      type: "select",
+      required: true,
+      options: ["Male", "Female"],
+    },
+    {
+      name: "smokerStatus",
+      label: "Smoker?",
+      type: "select",
+      required: true,
+      options: ["Non-smoker", "Smoker"],
+    },
     { name: "occupation", label: "Occupation", type: "text" },
     { name: "dependents", label: "Number of Dependents", type: "text" },
     {
@@ -172,6 +186,19 @@ export const memorialPlanForm: FormDefinition = {
     { name: "bestTimeToContact", label: "Best Time to Contact", type: "text" },
   ],
 };
+
+// Display/grouping order for the admin inquiries dashboard (not related to
+// the public-facing form pages) — claims first since those are time-
+// sensitive, general inquiry last since it's the catch-all.
+export const adminFormTypeGroups: { formType: string; label: string }[] = [
+  { formType: "claims-assistance", label: "Claims Assistance" },
+  { formType: "auto-insurance-quote", label: "Motor Insurance" },
+  { formType: "life-insurance-inquiry", label: "Life Insurance" },
+  { formType: "hmo-insurance-inquiry", label: "HMO Insurance" },
+  { formType: "property-fire-insurance-quote", label: "Property & Fire Insurance" },
+  { formType: "memorial-plan-inquiry", label: "Memorial Plans" },
+  { formType: "general-inquiry", label: "General Inquiry" },
+];
 
 export const claimsAssistanceForm: FormDefinition = {
   formType: "claims-assistance",

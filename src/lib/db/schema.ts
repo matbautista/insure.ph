@@ -9,4 +9,10 @@ export const inquiries = pgTable("inquiries", {
   formType: text("form_type").notNull(),
   data: jsonb("data").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  // Internal triage fields — never accepted from the public submission
+  // endpoint (see src/app/api/inquiries/route.ts), only set/edited from the
+  // authenticated admin dashboard.
+  status: text("status").notNull().default("new"),
+  assignee: text("assignee").notNull().default("Admin"),
+  remarks: text("remarks").notNull().default(""),
 });
