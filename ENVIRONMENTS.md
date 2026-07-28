@@ -97,7 +97,8 @@ only config Vercel ever builds.
    work - you can still push a placeholder build once via `vercel deploy` to
    initialize it.)
 2. On that project, set `DATABASE_URL`, `RESEND_API_KEY`,
-   `INQUIRY_FROM_EMAIL`, `AUTH_SECRET`, and `APP_ENV=production`. These are
+   `INQUIRY_FROM_EMAIL`, `AUTH_SECRET`, `ADMIN_PASSWORD_HASH`, and
+   `APP_ENV=production`. These are
    **Vercel project env vars, not GitHub secrets** - they're read at runtime
    by Vercel Functions (or, for `APP_ENV`, used by `vercel.json`'s
    buildCommand indirectly via the pulled project settings), not at
@@ -135,6 +136,13 @@ real, you still need to:
    send the notification email to info@insureph.org.
 4. Fill in a real `AUTH_SECRET` (`openssl rand -base64 32`) on the
    production Vercel project.
+4a. Set `ADMIN_PASSWORD_HASH` on the production Vercel project - a bcrypt
+    hash (never the plaintext password) gating the `/admin` inquiries
+    dashboard. Generate with:
+    `node -e "require('bcryptjs').hash(process.argv[1], 10).then(console.log)" 'your-password'`,
+    then `vercel env add ADMIN_PASSWORD_HASH production` (paste when
+    prompted - don't pass it as a CLI argument, and don't put the plaintext
+    password itself anywhere).
 5. Replace the placeholder URL in `.env.production` with the real domain
    once it exists (a custom domain attached to the production Vercel
    project, or its `*.vercel.app` default).
