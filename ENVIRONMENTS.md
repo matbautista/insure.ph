@@ -95,72 +95,80 @@ production behavior.
 `GET /api/health` reports the active environment — useful for confirming a
 deployment actually picked up the config you expect.
 
-## Hosting: Netlify
+## Hosting: Vercel
 
-**Chosen** — see `netlify.toml` and `.github/workflows/cd.yml` /
-`promote-production.yml`. This app has no image optimization usage, no
-middleware/proxy, no edge runtime, and no server actions — just server-
-rendered pages and two route handlers (`/api/health`, `/api/inquiries`)
-backed by HTTP-based clients (Neon's serverless driver, Resend's API), which
-is exactly what Netlify's Next.js Runtime (`@netlify/plugin-nextjs`) and its
-Functions model support well.
+**Chosen** — see `vercel.json` and `.github/workflows/cd.yml` /
+`promote-production.yml`. (Previously wired to Netlify; switched because this
+is currently a POC for a fictitious company being shown to clients, so
+Vercel's Hobby plan — which prohibits commercial use — is fine here. Revisit
+if this ever becomes a real production site for an actual client.) This app
+has no image optimization usage, no middleware/proxy, no edge runtime, and no
+server actions — just server-rendered pages and two route handlers
+(`/api/health`, `/api/inquiries`) backed by HTTP-based clients (Neon's
+serverless driver, Resend's API), which is exactly what Vercel's Next.js
+support (built by the same team as the framework) handles well.
 
-Deploys are driven by GitHub Actions, not Netlify's own git integration:
-`netlify deploy --build --prod` runs `netlify.toml`'s build command
-(`npm run build:$APP_ENV`) plus the Next.js plugin transform, then deploys
-the result as that site's live deploy.
+Deploys are driven by GitHub Actions, not Vercel's own git integration:
+`vercel pull` fetches that project's settings/env vars, `vercel build`
+runs `vercel.json`'s `buildCommand` (`npm run build:$APP_ENV`), and
+`vercel deploy --prebuilt --prod` uploads the result as that project's live
+deploy.
 
 **One-time setup, per environment (demo/development/staging/production):**
 
-1. Create a Netlify site for that environment. **Do not link it to this git
-   repo** — GH Actions already owns branch → environment → deploy, and a
-   linked repo would trigger Netlify's own competing auto-deploys on push.
-   (`netlify sites:create` or the dashboard's "Deploy manually" / API-only
-   flow both work.)
-2. On that site, set the environment variable `APP_ENV` to the environment
+1. Create a Vercel project for that environment. **Do not link it to this
+   git repo** — GH Actions already owns branch → environment → deploy, and a
+   linked repo would trigger Vercel's own competing auto-deploys on push.
+   (`vercel project add` or the dashboard's "Deploy without Git" flow both
+   work — you can still push a placeholder build once via `vercel deploy` to
+   initialize it.)
+2. On that project, set the Environment Variable `APP_ENV` (scoped to
+   "Production" in Vercel's own environment picker — see the note above about
+   this being a different "production" than this repo's) to the environment
    name (`demo` / `development` / `staging` / `production`) — this selects
-   the right `npm run build:<environment>` script in `netlify.toml`.
-3. On that site, also set `DATABASE_URL`, `RESEND_API_KEY`,
-   `INQUIRY_FROM_EMAIL`, and `AUTH_SECRET`. These are **Netlify site env
-   vars, not GitHub secrets** — they're read at runtime by Netlify Functions,
+   the right `npm run build:<environment>` script via `vercel.json`.
+3. On that project, also set `DATABASE_URL`, `RESEND_API_KEY`,
+   `INQUIRY_FROM_EMAIL`, and `AUTH_SECRET`. These are **Vercel project env
+   vars, not GitHub secrets** — they're read at runtime by Vercel Functions,
    not at build time, so they belong where the function actually runs. (This
    mirrors how `NEXT_PUBLIC_*` vars are build-time and come from the
    committed `.env.<environment>` file, while these are runtime and
-   per-site.)
+   per-project.)
 4. In this repo's GitHub Environment for that environment (Settings →
-   Environments → demo/development/staging/production), add two secrets:
-   `NETLIFY_AUTH_TOKEN` (a Netlify personal/team access token — can be
-   shared across environments) and `NETLIFY_SITE_ID` (that specific site's
-   ID, from Site configuration → General → Site details). These are what
-   `cd.yml` / `promote-production.yml` use to deploy to the right site.
+   Environments → demo/development/staging/production), add three secrets:
+   `VERCEL_TOKEN` (a Vercel personal/team access token — can be shared across
+   environments), `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` (that specific
+   project's IDs, from Project Settings → General, or `.vercel/project.json`
+   after running `vercel link` locally once). These are what `cd.yml` /
+   `promote-production.yml` use to deploy to the right project.
 
 ## What still needs a real decision
 
 This scaffolding does not provision any infrastructure. Before demo/staging/
 production are real, you still need to:
 
-1. ~~Pick a hosting provider~~ — Netlify, see above. Still need to actually
-   create the 4 sites and their secrets per the steps above.
+1. ~~Pick a hosting provider~~ — Vercel, see above. Still need to actually
+   create the 4 projects and their secrets per the steps above.
 2. Database: **Neon** (chosen — see `src/lib/db/`). Create one Neon project
    with a branch per environment (demo/development/staging/production),
    mirroring the git branches, and put each branch's connection string in
-   that environment's Netlify site as `DATABASE_URL` (see step 3 under
-   "Hosting: Netlify" above — not a GitHub secret). Run `npm run db:push`
+   that environment's Vercel project as `DATABASE_URL` (see step 3 under
+   "Hosting: Vercel" above — not a GitHub secret). Run `npm run db:push`
    once against each to create the `inquiries` table.
 3. Email: **Resend** (chosen — see `src/lib/email.ts`). Verify a sending
    domain in Resend, then set `RESEND_API_KEY` and `INQUIRY_FROM_EMAIL` on
-   each Netlify site. Without these, `/api/inquiries` still saves to the
+   each Vercel project. Without these, `/api/inquiries` still saves to the
    database but won't send the notification email to info@insureph.org.
 4. Fill in the real `AUTH_SECRET` per environment (`openssl rand -base64 32`
-   — a different value per environment, never reused) on each Netlify site.
+   — a different value per environment, never reused) on each Vercel project.
 5. Replace the placeholder URLs in `.env.demo` / `.env.staging` /
    `.env.production` with real domains once they exist (a custom domain
-   attached to that environment's Netlify site, or its `*.netlify.app`
+   attached to that environment's Vercel project, or its `*.vercel.app`
    default).
-6. Create the 4 Netlify sites and their `NETLIFY_AUTH_TOKEN` /
-   `NETLIFY_SITE_ID` GitHub Environment secrets — see "Hosting: Netlify"
+6. Create the 4 Vercel projects and their `VERCEL_TOKEN` / `VERCEL_ORG_ID` /
+   `VERCEL_PROJECT_ID` GitHub Environment secrets — see "Hosting: Vercel"
    above. The `deploy` steps in `.github/workflows/cd.yml` and
-   `promote-production.yml` are already wired to Netlify; this is the only
+   `promote-production.yml` are already wired to Vercel; this is the only
    remaining piece.
 7. Add required reviewers to the `production` GitHub Environment (Settings →
    Environments → production → Required reviewers) — without this, the

@@ -56,21 +56,26 @@ jobs:
 
       - run: npm ci
 
-      - name: Build and deploy to Netlify (${{ env.APP_ENV }})
-        # `netlify deploy --build` runs netlify.toml's build command
-        # (`npm run build:$APP_ENV`, hence APP_ENV in `env:` below) and the
-        # @netlify/plugin-nextjs transform, then deploys the result as this
-        # site's live (production-context) deploy — each app environment is
-        # its own Netlify site, so there's no separate "prod" to distinguish
-        # here. DATABASE_URL / RESEND_API_KEY / AUTH_SECRET are NOT passed
-        # from GitHub: they're runtime secrets for Netlify Functions, so they
-        # live in this site's own environment variables (Netlify UI/API),
-        # scoped per site same as everywhere else in this repo is scoped per
-        # environment. See ENVIRONMENTS.md.
+      - name: Build and deploy to Vercel (${{ env.APP_ENV }})
+        # `vercel pull` fetches this project's settings and Environment
+        # Variables (DATABASE_URL / RESEND_API_KEY / AUTH_SECRET / APP_ENV —
+        # configured on the Vercel project itself, NOT GitHub secrets, since
+        # they're runtime values for Vercel Functions, scoped per project
+        # same as everywhere else in this repo is scoped per environment).
+        # `--environment=production` / `--prod` refer to *this Vercel
+        # project's* primary environment, not this repo's app-environment
+        # concept — each app environment is its own Vercel project, so
+        # there's no separate "prod" to distinguish here. vercel.json's
+        # buildCommand (`npm run build:$APP_ENV`) does the actual env
+        # selection, using the pulled APP_ENV variable. See ENVIRONMENTS.md.
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: npx netlify-cli@27 deploy --build --prod
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npx vercel@58 pull --yes --environment=production --token="$VERCEL_TOKEN"
+          npx vercel@58 build --prod --token="$VERCEL_TOKEN"
+          npx vercel@58 deploy --prebuilt --prod --token="$VERCEL_TOKEN"
 
       - name: How to promote this to production
         if: env.APP_ENV == 'staging'
