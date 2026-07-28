@@ -111,6 +111,20 @@ export const lifeInsuranceForm: FormDefinition = {
     { name: "phone", label: "Contact Number", type: "tel", required: true },
     { name: "email", label: "Email Address", type: "email", required: true },
     { name: "age", label: "Age", type: "text", required: true },
+    {
+      name: "genderAtBirth",
+      label: "Gender at Birth",
+      type: "select",
+      required: true,
+      options: ["Male", "Female"],
+    },
+    {
+      name: "smokerStatus",
+      label: "Smoker?",
+      type: "select",
+      required: true,
+      options: ["Non-smoker", "Smoker"],
+    },
     { name: "occupation", label: "Occupation", type: "text" },
     { name: "dependents", label: "Number of Dependents", type: "text" },
     {
