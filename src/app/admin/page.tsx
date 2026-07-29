@@ -34,11 +34,12 @@ export default async function AdminPage({
   const activeCategory = categoryParam && knownFormTypes.has(categoryParam) ? categoryParam : "all";
   const activeSearch = qParam?.trim() ?? "";
 
-  // Search matches against the submitted form fields (stored as JSONB) and
-  // internal remarks — covers name/email/phone/message across every form
-  // type without needing a per-field query.
+  // Search matches against the submitted form fields (stored as JSONB),
+  // internal remarks, and the reference number — covers name/email/phone/
+  // message plus lookup-by-reference across every form type without needing
+  // a per-field query.
   const searchCondition = activeSearch
-    ? sql`(${inquiries.data}::text ILIKE ${`%${activeSearch}%`} OR ${inquiries.remarks} ILIKE ${`%${activeSearch}%`})`
+    ? sql`(${inquiries.data}::text ILIKE ${`%${activeSearch}%`} OR ${inquiries.remarks} ILIKE ${`%${activeSearch}%`} OR ${inquiries.referenceNumber} ILIKE ${`%${activeSearch}%`})`
     : undefined;
 
   // Conditions that scope "what set of inquiries are we looking at" apart
@@ -187,6 +188,7 @@ export default async function AdminPage({
                   <InquiryCard
                     key={row.id}
                     id={row.id}
+                    referenceNumber={row.referenceNumber}
                     formType={row.formType}
                     createdAt={row.createdAt.toISOString()}
                     data={row.data as Record<string, unknown>}

@@ -240,3 +240,23 @@ export const claimsAssistanceForm: FormDefinition = {
     },
   ],
 };
+
+export const allForms: FormDefinition[] = [
+  claimsAssistanceForm,
+  autoInsuranceForm,
+  lifeInsuranceForm,
+  hmoInsuranceForm,
+  propertyInsuranceForm,
+  memorialPlanForm,
+  generalInquiryForm,
+];
+
+// Field names can repeat across forms with different meanings (e.g. "forWhom"
+// is "Coverage For" on the HMO form but "Planning For" on the memorial plan
+// form), so the label lookup is scoped per formType rather than a flat map.
+// Falls back to the raw field name for anything not found (unknown formType,
+// or a field the form definition doesn't have — schemas evolve).
+export function getFieldLabel(formType: string, fieldName: string): string {
+  const form = allForms.find((f) => f.formType === formType);
+  return form?.fields.find((f) => f.name === fieldName)?.label ?? fieldName;
+}

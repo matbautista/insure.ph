@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
 import { inquiries } from "@/lib/db/schema";
 import { sendInquiryEmail } from "@/lib/email";
+import { generateReferenceNumber } from "@/lib/reference-number";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -20,8 +21,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Inquiries are not being accepted right now" }, { status: 503 });
   }
 
+  let referenceNumber: string;
   try {
-    await db.insert(inquiries).values({ formType, data });
+    referenceNumber = await generateReferenceNumber(formType);
+    await db.insert(inquiries).values({ formType, referenceNumber, data });
   } catch (err) {
     console.error("[inquiry] failed to write to database:", err);
     return NextResponse.json({ error: "Failed to save inquiry" }, { status: 500 });
@@ -36,5 +39,5 @@ export async function POST(request: Request) {
     console.error("[inquiry] failed to send notification email:", err);
   }
 
-  return NextResponse.json({ status: "received" });
+  return NextResponse.json({ status: "received", referenceNumber });
 }

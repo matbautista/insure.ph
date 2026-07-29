@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { STATUS_OPTIONS } from "@/lib/inquiry-status";
 import { calculateAge } from "@/lib/age";
+import { getFieldLabel } from "@/lib/forms";
 
 export function InquiryCard({
   id,
+  referenceNumber,
   formType,
   createdAt,
   data,
@@ -15,6 +17,7 @@ export function InquiryCard({
   remarks: initialRemarks,
 }: {
   id: number;
+  referenceNumber: string;
   formType: string;
   createdAt: string;
   data: Record<string, unknown>;
@@ -71,7 +74,9 @@ export function InquiryCard({
   return (
     <details className="group rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 marker:content-none">
-        <span className="font-semibold text-zinc-900 dark:text-zinc-50">{formType}</span>
+        <span className="rounded-md bg-zinc-100 px-2 py-0.5 font-mono text-sm font-semibold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+          {referenceNumber}
+        </span>
         <span className="text-sm text-zinc-500 dark:text-zinc-400">
           {new Date(createdAt).toLocaleString("en-PH", { timeZone: "Asia/Manila" })}
         </span>
@@ -84,7 +89,7 @@ export function InquiryCard({
             return (
               <tr key={key} className="border-t border-zinc-100 dark:border-zinc-800">
                 <td className="py-1.5 pr-4 align-top font-medium whitespace-nowrap text-zinc-600 dark:text-zinc-400">
-                  {key}
+                  {getFieldLabel(formType, key)}
                 </td>
                 <td className="py-1.5 text-zinc-900 dark:text-zinc-50">
                   {String(value)}
